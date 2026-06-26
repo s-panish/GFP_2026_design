@@ -1,39 +1,61 @@
 # GeneMeow GFP Design Pipeline
 
-Computational design of GFP variants with a dual objective: preserving high initial fluorescence brightness and improving the probability of post-heat fluorescence retention.
+Computational design and validation workflow for the GFP design challenge. The goal was to submit six GFP-family amino acid sequences with a balanced expectation of high initial fluorescence brightness and improved post-heat fluorescence retention.
 
-This repository contains the full reproducible workflow used by **Team GeneMeow** for the GFP design challenge. The final output is a set of six amino acid sequences selected from an sfGFP-based candidate library using DMS-derived brightness evidence, stability-oriented mutation priors, ColabFold structural validation, and portfolio-based final selection.
+This repository contains the final **Team GeneMeow** submission package: sequence file, design report, code, ColabFold structural validation outputs, figures, and summary metrics.
+
+---
+
+## Final submission
+
+The final competition file is:
+
+```text
+outputs/submission_GeneMeow.csv
+```
+
+It follows the required format exactly:
+
+```text
+Team_Name,Seq_ID,Sequence
+```
+
+Submission summary:
+
+```text
+Team_Name = GeneMeow
+number of sequences = 6
+sequence length = 238 aa for all submitted variants
+parent scaffold = sfGFP
+chromophore motif = TYG at positions 65–67
+```
+
+All six submitted sequences:
+
+- start with methionine `M`;
+- contain only the 20 standard amino acids;
+- have length 238 aa, within the required 220–250 aa interval;
+- preserve the sfGFP chromophore-forming motif `TYG` at positions 65–67;
+- do not exactly match `Exclusion_List.csv` or the previous top-sequence list;
+- passed sfGFP-aware brightness sanity checking;
+- passed ColabFold structural sanity checking.
 
 ---
 
 ## Project objective
 
-The competition objective is to design GFP-family protein sequences with:
+The competition evaluates each submitted protein sequence experimentally using two component scores:
 
-1. **High initial brightness**
-   Evaluated experimentally as:
+```text
+Relative brightness score = Finitial / FinitialWT
+Thermal stability retention score = Ffinal / Finitial
+Comprehensive score = (Finitial / FinitialWT) × (Ffinal / Finitial)
+                    = Ffinal / FinitialWT
+```
 
-   ```text
-   Finitial / FinitialWT
-   ```
+The official facility synthesizes the DNA templates, expresses proteins in a cell-free protein synthesis system, measures initial brightness, applies heat treatment, and measures post-heat brightness.
 
-2. **High thermal stability retention**
-   Evaluated experimentally as:
-
-   ```text
-   Ffinal / Finitial
-   ```
-
-3. **High combined performance**
-
-   ```text
-   Comprehensive score = (Finitial / FinitialWT) × (Ffinal / Finitial)
-                       = Ffinal / FinitialWT
-   ```
-
-The official assay will synthesize DNA templates, express proteins in a cell-free protein synthesis system, measure initial brightness, apply heat treatment, and then measure post-heat brightness.
-
-Our computational workflow does **not** claim to directly predict the final experimental score. Instead, it prioritizes candidate sequences that are expected to preserve GFP fluorescence while reducing the risk of thermal denaturation or aggregation.
+Our workflow does **not** claim to directly predict the final experimental score. Instead, it prioritizes variants that are expected to preserve initial brightness while improving the probability of post-heat fluorescence retention.
 
 ---
 
@@ -42,41 +64,69 @@ Our computational workflow does **not** claim to directly predict the final expe
 ```text
 gfp-2026-genemeow-design/
 ├── README.md
+├── requirements.txt
+├── run_pipeline.py
+├── LICENSE
+├── .gitignore
+├── src/
+│   ├── brightness_model.py
+│   ├── sfgfp_brightness_model.py
+│   ├── verify.py
+│   ├── design.py
+│   └── reliability_screen.py
 ├── scripts/
-│   ├── gfp_2026_design_pipeline.py
 │   ├── alphafold2_batch.py
-│   └── process_colabfold_archive_memory_safe.py
+│   ├── final_gfp.py
+│   ├── gfp_2026_design_pipeline.py
+│   └── sfgfp_brightness_model.py
 ├── data/
-│   └── AAseqs of 5 GFP proteins_20260511.txt
-│   └── GFP_data.xlsx
-│   └── Exclusion_List.csv
-│   └── submission_template.csv
+│   ├── README.md
+│   └── reference_sequences.fasta
+├── stability/
+│   └── README.md
+├── structural_validation/
+│   ├── colabfold_run_instructions.md
+│   ├── colabfold_input_WT_plus_6designs.fasta
+│   ├── sfgfp_site_features.csv
+│   └── process_colabfold_results_final6_memory_safe.py
 ├── outputs/
 │   ├── submission_GeneMeow.csv
-│   ├── final6_GeneMeow_summary.csv
-│   ├── stage4_colabfold_metrics_from_uploaded_archive.csv
-│   ├── top24_for_colabfold_v2.csv
-│   ├── mutation_evidence_v2.csv
-│   ├── stage3_v2_metadata.json
-│   └── GeneMeow_minimal_submission_package.zip
+│   ├── submission.csv
+│   ├── final6_colabfold_brightness_metrics.csv
+│   ├── submission_validation_summary.csv
+│   ├── colabfold_validation_metrics.csv
+│   └── design_report.csv
 ├── figures/
-│   ├── final6_final_computational_score.png
+│   ├── final6_brightness_delta.png
+│   ├── final6_stability_proxy.png
 │   ├── final6_mean_plddt.png
-│   ├── final6_chromophore_plddt_min.png
-│   ├── final6_core_rmsd_to_wt.png
-│   ├── top24_charge_vs_final_score_highlight_final6.png
+│   ├── final6_chromophore_plddt.png
+│   ├── final6_core_rmsd.png
+│   ├── final6_brightness_vs_stability.png
 │   └── colabfold_raw_plots_final6/
 ├── models/
 │   └── colabfold_rank001_final6/
 └── docs/
-    ├── design_concept_GeneMeow_updated.pdf
+    ├── design_concept_GeneMeow.pdf
+    └── design_concept_GeneMeow.docx
 ```
 
 ---
 
 ## Required official input files
 
-Expected data layout for local or Colab execution:
+The full workflow uses the official competition materials:
+
+```text
+AAseqs of 5 GFP proteins_20260511.txt
+GFP_data.xlsx
+Exclusion_List.csv
+submission_template.csv
+```
+
+These official files should be downloaded from the competition system. The repository includes a lightweight `data/reference_sequences.fasta` for convenience, but large official datasets may need to be placed manually in `data/` or `/content/` before a full rerun.
+
+Expected Colab layout for full reproduction:
 
 ```text
 /content/
@@ -88,87 +138,65 @@ Expected data layout for local or Colab execution:
 
 ---
 
-## Final submission file
-
-The final competition sequence file is:
-
-```text
-outputs/submission_GeneMeow.csv
-```
-
-It contains exactly three required columns:
-
-```text
-Team_Name,Seq_ID,Sequence
-```
-
-The final file contains six designed amino acid sequences:
-
-```text
-Team_Name = GeneMeow
-Seq_ID    = 1, 2, 3, 4, 5, 6
-Sequence  = amino acid sequence, 238 aa
-```
-
-All submitted sequences:
-
-* are 238 amino acids long;
-* start with methionine `M`;
-* contain only the 20 standard amino acids;
-* preserve the sfGFP chromophore-forming motif `TYG` at positions 65–67;
-* do not exactly match sequences in `Exclusion_List.csv`;
-* passed ColabFold structural sanity checks.
-
----
-
 ## Pipeline overview
-
-The complete workflow contains five main stages.
 
 ```mermaid
 flowchart TD
-    A[Official input files] --> B[Reference and exclusion checks]
-    B --> C[Brightness model on avGFP DMS data]
-    C --> D[Mutation-level brightness evidence]
-    D --> E[sfGFP candidate library generation]
-    E --> F[Hard format and exclusion filters]
-    F --> G[Pre-ColabFold multi-objective scoring]
-    G --> H[Top24 diversified candidate portfolio]
-    H --> I[ColabFold AlphaFold2_batch validation]
-    I --> J[Structural metrics and RMSD to WT sfGFP]
-    J --> K[Final diversified six candidates]
-    K --> L[submission_GeneMeow.csv]
+    A[Official GFP materials] --> B[Load sfGFP and validation files]
+    B --> C[Train avGFP DMS brightness model]
+    C --> D[sfGFP-aware delta brightness scoring]
+    D --> E[Generate and score candidate variants]
+    E --> F[Apply format, exclusion, brightness, and stability filters]
+    F --> G[Select final six-sequence portfolio]
+    G --> H[Run ColabFold on WT + final six]
+    H --> I[Extract pLDDT, pTM, chromophore confidence, and RMSD]
+    I --> J[Create submission CSV, report, figures, and repository package]
 ```
+
+The final design strategy combined:
+
+1. sfGFP as a robust parent scaffold;
+2. avGFP DMS-derived brightness evidence;
+3. sfGFP-aware delta scoring rather than absolute avGFP-to-sfGFP transfer;
+4. moderate negative surface-charge engineering as a thermal-retention proxy;
+5. strict format and exclusion checks;
+6. ColabFold structural sanity checking;
+7. portfolio-based final selection.
 
 ---
 
-## Stage 1 — Reference and format checks
+## Stage 1 — Reference, format, and exclusion checks
 
-The pipeline first loads the official GFP reference sequences and validates the main scaffold.
-
-The selected parent scaffold is:
+The workflow loads the official GFP reference sequences and uses sfGFP as the parent scaffold.
 
 ```text
-sfGFP
+parent scaffold = sfGFP
 length = 238 aa
 chromophore positions 65–67 = TYG
-recommended reference structure = PDB 2B3P
+reference structural scaffold = sfGFP / PDB 2B3P-compatible fold
 ```
 
-The pipeline also checks:
+The script checks:
 
-* `Exclusion_List.csv`;
-* `beforetopseqs` from `GFP_data.xlsx`;
-* `submission_template.csv`;
-* sequence length constraints;
-* allowed amino acid alphabet;
-* preservation of the chromophore motif.
+- whether required files are present;
+- whether submitted sequences start with `M`;
+- whether sequence length is 220–250 aa;
+- whether only the 20 standard amino acids are used;
+- whether the chromophore motif is preserved;
+- whether sequences exactly match `Exclusion_List.csv`;
+- whether sequences match the previous top-sequence list from `GFP_data.xlsx`.
+
+The output table for this step is:
+
+```text
+outputs/submission_validation_summary.csv
+```
 
 ---
 
 ## Stage 2 — Brightness model from avGFP DMS data
 
-The `brightness` sheet from `GFP_data.xlsx` was used to train a mutation-based brightness model on avGFP variants.
+The `brightness` sheet from `GFP_data.xlsx` was used to train a mutation-based model on avGFP variants.
 
 Model:
 
@@ -182,88 +210,85 @@ Input representation:
 aaMutations → binary mutation features
 ```
 
-Example mutation feature representation:
+Example:
 
 ```text
-A109D:N145D:I187V
+D19E:R73L:H231Y
 ```
 
-is converted to:
+is encoded as:
 
 ```text
-A109D = 1
-N145D = 1
-I187V = 1
+D19E = 1
+R73L = 1
+H231Y = 1
 ```
-
-The model was trained on avGFP DMS data and used as a brightness-prior model.
 
 Observed model performance:
 
 ```text
 avGFP rows used: 51715
-number of mutation features: 1703
+mutation features: 1703
 raw Ridge test R²: 0.6935
 Ridge + isotonic test R²: 0.9214
 Ridge + isotonic test MAE: 0.1700
 ```
 
-Important limitation:
+Important methodological choice:
 
-The avGFP-trained model was **not** used as a direct absolute predictor of sfGFP brightness. Direct full-sequence transfer from avGFP to sfGFP saturated and assigned nearly identical values to many sfGFP-derived candidates. Therefore, the final workflow used mutation-level brightness evidence rather than full-sequence brightness prediction.
+The avGFP-trained model was **not** used as an absolute predictor of full sfGFP brightness. Direct full-sequence avGFP-to-sfGFP transfer can saturate and become misleading. Instead, the final pipeline uses mutation-level delta effects relative to sfGFP.
 
 ---
 
-## Stage 3 — Mutation-level brightness evidence
+## Stage 3 — sfGFP-aware brightness delta scoring
 
-Instead of predicting absolute fluorescence for each full sfGFP sequence, each candidate was evaluated using mutation-level evidence.
+The final brightness validation uses a delta-score approach.
 
-The local brightness score combines:
-
-1. observed single-mutant brightness in avGFP DMS data;
-2. Ridge model coefficient for the mutation;
-3. sfGFP-specific literature prior for `H148S`;
-4. small positive prior for `N164Y`;
-5. penalty for risky mutations such as `F46L`.
-
-The implemented brightness evidence score is:
+Key correction:
 
 ```text
-Local_Brightness_Evidence_Score =
-sum(local DMS mutation scores)
-+ H148S literature-prior bonus
-+ N164Y folding/brightness-support bonus
-- F46L risk penalty
+avGFP DMS dataset position = protein position - 1
 ```
 
-In code:
+For example, a protein-level mutation at position 231 is mapped to DMS position 230.
 
-```python
-if "H148S" in mutations:
-    score += 1.2
+For each mutation, the model checks:
 
-if "N164Y" in mutations:
-    score += 0.15
+- whether the mutation is measured in avGFP DMS data;
+- whether the mutation has sufficient support;
+- whether the reference residue in sfGFP matches the avGFP DMS reference context;
+- whether the mutation needs to be estimated from position-level information.
 
-if "F46L" in mutations:
-    score -= 0.25
+The final brightness score is reported as:
+
+```text
+SfGFP_Delta_Brightness_Score
 ```
 
-The mutation `Q69L` was excluded from the final mutation library because the avGFP-equivalent mutation `Q68L` showed a negative brightness signal.
+Interpretation:
+
+```text
+positive score  → predicted to be at least as bright as sfGFP under the DMS-derived prior
+near-zero score → approximately sfGFP-like brightness prior
+negative score  → potential brightness risk
+```
+
+All final six designs have positive delta brightness scores and pass brightness sanity checking.
 
 ---
 
 ## Stage 4 — Stability proxy
 
-True thermal stability after heat treatment at 72°C was not directly predicted because there is no large public dataset matching the exact official assay.
+No large public dataset directly predicts the official 72°C post-heat brightness retention. Therefore, thermal performance was treated as a proxy rather than a measured or directly predicted value.
 
-Instead, we used a stability proxy based on three principles:
+The stability proxy combines:
 
-1. sfGFP is already a robust folding scaffold;
-2. moderate negative surface-charge shift may improve solubility and reduce aggregation;
-3. folding-prior mutations may improve scaffold robustness.
+1. sfGFP as an already robust scaffold;
+2. moderate negative surface-charge shift;
+3. selected supercharging mutations such as `K101E`, `K156E`, `K166E`, `N198D`, and `N212D`;
+4. risk penalties for excessive mutational load.
 
-Approximate net charge was computed as:
+Approximate net charge is computed as:
 
 ```text
 K/R = +1
@@ -271,188 +296,67 @@ D/E = -1
 H   = +0.1
 ```
 
-The charge shift was defined as:
+The charge shift is:
 
 ```text
-Charge_Delta_More_Negative_vs_sfGFP =
-sfGFP_net_charge - candidate_net_charge
+Charge_Delta_More_Negative_vs_sfGFP = sfGFP_net_charge - candidate_net_charge
 ```
 
-The stability proxy favored a moderate negative charge shift around 6 rather than maximizing charge aggressively:
+A higher positive value means the variant is more negatively charged than sfGFP.
 
-```text
-charge_score = exp(-((charge_delta - 6.0)^2) / (2 × 3.0^2))
-```
-
-The full stability proxy was:
-
-```text
-Stability_Proxy_Score =
-1.20 × charge_score
-+ 0.25 × folding_count
-+ 0.12 × supercharge_count
-```
-
-This score is not an experimental melting temperature or direct `Ffinal` prediction. It is a computational prior used for candidate ranking.
+The stability proxy is not a melting temperature and not a direct `Ffinal` prediction. It is a ranking heuristic for thermal-retention potential.
 
 ---
 
-## Stage 5 — Risk penalty
+## Stage 5 — Final design portfolio
 
-The risk penalty prevents the algorithm from selecting highly mutated sequences that might lose brightness due to negative epistasis or folding disruption.
+The final six sequences were selected to cover complementary design hypotheses.
 
-The penalty includes:
+| Seq_ID | Role | Mutations | Brightness delta | Stability proxy |
+|---:|---|---|---:|---:|
+| 1 | conservative surface-brightness candidate | D19E:R73L:H231Y | 0.1700 | 0.316 |
+| 2 | balanced charge/brightness candidate | D19E:R73L:K166E:N212D:H231Y | 0.2829 | 1.222 |
+| 3 | main balanced candidate | D19E:R73L:K166E:N198D:N212D:H231Y | 0.3459 | 1.507 |
+| 4 | high-charge thermal candidate | D19E:R73L:K101E:K156E:K166E:N198D:N212D:H231Y | 0.3787 | 1.304 |
+| 5 | brightness-focused backup | D19E:R73L:H231Y:Y237N | 0.2786 | 0.316 |
+| 6 | supercharged thermal insurance candidate | K101E:K156E:K166E:N198D:N212D | 0.2087 | 1.561 |
 
-```text
-0.08 × number of mutations
-+ 0.50 if more than 7 mutations
-+ 0.10 if multiple terminal mutations
-+ 0.15 if F46L is present
-```
+Rationale:
 
-This encourages conservative and moderate designs rather than overly aggressive mutational combinations.
-
----
-
-## Stage 6 — Pre-ColabFold multi-objective score
-
-Each generated candidate was scored before structure prediction using:
-
-```text
-Pre_ColabFold_MultiObjective_Score =
-0.50 × Local_Brightness_Evidence_Score
-+ 0.40 × Stability_Proxy_Score
-- Risk_Penalty
-```
-
-This score balances:
-
-* expected brightness preservation;
-* expected thermal-retention potential;
-* mutational risk.
+- Seq 1 provides a conservative low-mutational-load baseline.
+- Seq 2 and Seq 3 provide balanced brightness and moderate supercharging.
+- Seq 4 is a higher-risk, higher-charge thermal-retention candidate.
+- Seq 5 is a brightness-oriented backup.
+- Seq 6 is a strong thermal/supercharge insurance design without the terminal H231Y mutation.
 
 ---
 
-## Stage 7 — Candidate generation and hard filters
+## Stage 6 — ColabFold structural validation
 
-The candidate library was generated by combining mutations from the following groups:
-
-### DMS brightness-safe mutations
-
-```text
-L220V
-L194M
-D102E
-L220Q
-Q183L
-A226T
-A226D
-V11L
-T49S
-Q183R
-```
-
-### Literature brightness prior
-
-```text
-H148S
-```
-
-### Negative supercharging / stability proxy
-
-```text
-N198D
-K101E
-K156E
-K166E
-K214E
-N212D
-```
-
-### Folding-prior mutations
-
-```text
-N164Y
-N149K
-S208L
-```
-
-### Optional risk mutation
-
-```text
-F46L
-```
-
-Hard filters applied before top24 selection:
-
-```text
-length 220–250 aa
-starts with M
-standard amino acids only
-chromophore 65–67 preserved
-not exact match in Exclusion_List.csv
-not exact match in beforetopseqs
-has brightness basis
-has stability/folding basis
-charge shift is not negative
-charge shift is not above 12
-no more than 4 negative-supercharging mutations
-no more than 1 optional-risk mutation
-Q69L excluded due to negative DMS-equivalent Q68L signal
-```
-
-After filtering, 134337 candidates remained.
-
----
-
-## Stage 8 — Top24 selection
-
-The top24 sequences were not selected simply as the 24 highest-scoring candidates. Instead, candidates were selected from five design families to preserve diversity across brightness, charge/stability, and risk classes.
-
-Design families:
-
-| Family                         | Number selected | Purpose                                              |
-| ------------------------------ | --------------: | ---------------------------------------------------- |
-| conservative_H148S_mild_charge |               5 | low-risk candidates with H148S and mild charge shift |
-| balanced_H148S_medium_charge   |               6 | balanced brightness/stability candidates             |
-| balanced_H148S_stronger_charge |               6 | stronger charge-shift candidates                     |
-| thermal_supercharged_H148S     |               4 | higher-risk thermal-retention candidates             |
-| backup_without_H148S           |               3 | backup candidates in case H148S is unfavorable       |
-
-This portfolio strategy was used because the official team ranking depends on the best-performing sequence among the six submitted variants. Therefore, diversity across risk classes is more valuable than submitting six nearly identical high-scoring variants.
-
----
-
-## Stage 9 — ColabFold structural validation
-
-The top24 candidates plus WT sfGFP were evaluated with ColabFold AlphaFold2_batch.
+The final six designs plus WT sfGFP were evaluated with ColabFold AlphaFold2_batch.
 
 ColabFold settings:
 
 ```text
-input: separate FASTA files
-number of queries: 25
-model type: AlphaFold2 / AlphaFold2-PTM
-MSA mode: MMseqs2 UniRef + Environmental
-number of models per sequence: 5
-number of recycles: 3
-template usage: disabled
-Amber relaxation: disabled
-ranking: pLDDT
+input = WT sfGFP + 6 designed FASTA sequences
+MSA mode = MMseqs2 UniRef + Environmental
+number of models = 5
+number of recycles = 3
+templates = disabled
+Amber relaxation = disabled
+ranking = pLDDT / auto
 ```
 
-ColabFold validation was used as a structural sanity check, not as a direct predictor of fluorescence or heat retention.
-
-Metrics extracted from the best-ranked model for each sequence:
+Extracted structural metrics:
 
 ```text
 Mean pLDDT
 pTM
-chromophore pLDDT at positions 65–67
+minimum chromophore pLDDT at positions 65–67
 core pLDDT for residues 1–220
-C-terminal pLDDT for residues 221–238
-mutation-site pLDDT
 core RMSD to WT sfGFP
+core mutation-site pLDDT
+terminal mutation pLDDT for residues 221–238, when applicable
 ```
 
 Structural pass criteria:
@@ -463,68 +367,58 @@ minimum chromophore pLDDT at positions 65–67 ≥ 85
 core RMSD to WT sfGFP ≤ 1.0 Å
 ```
 
-All final six candidates passed these structural filters.
+All final six candidates passed structural validation.
 
 ---
 
-## Final six selected sequences
+## Final six ColabFold metrics
 
-The final six were selected as a diversified portfolio rather than as six near-identical top-ranked variants.
+| Seq_ID | Mean pLDDT | pTM | Chromophore pLDDT min | Core RMSD to WT, Å | Core mutation-site pLDDT min | Structural pass |
+|---:|---:|---:|---:|---:|---:|---|
+| 1 | 96.205 | 0.91 | 95.38 | 0.125 | 98.12 | pass |
+| 2 | 96.172 | 0.91 | 95.75 | 0.040 | 97.75 | pass |
+| 3 | 96.233 | 0.91 | 96.00 | 0.042 | 97.12 | pass |
+| 4 | 96.330 | 0.91 | 95.31 | 0.123 | 95.88 | pass |
+| 5 | 96.327 | 0.91 | 94.88 | 0.128 | 98.12 | pass |
+| 6 | 96.219 | 0.91 | 94.75 | 0.115 | 95.75 | pass |
 
-| Seq_ID | Query ID              | Role                                      | Mutations                                 |
-| -----: | --------------------- | ----------------------------------------- | ----------------------------------------- |
-|      1 | Query_02_CANDV2_01071 | conservative low-risk H148S + mild charge | L220V:H148S:K156E:N164Y                   |
-|      2 | Query_06_CANDV2_06745 | balanced medium-charge main candidate     | L220V:H148S:K101E:K156E:N164Y             |
-|      3 | Query_15_CANDV2_26898 | best overall computational candidate      | L220V:H148S:K156E:K166E:K214E:N164Y       |
-|      4 | Query_16_CANDV2_26760 | balanced alternative with N198D           | L220V:H148S:N198D:K101E:K156E:N164Y       |
-|      5 | Query_18_CANDV2_77117 | thermal-retention supercharged bet        | L220V:H148S:K101E:K156E:K166E:K214E:N164Y |
-|      6 | Query_24_CANDV2_26657 | backup without H148S                      | L220V:Q183R:K101E:K166E:K214E:N164Y       |
-
----
-
-## Summary of final six ColabFold validation
-
-| Seq_ID | Mean pLDDT |  pTM | Chromophore pLDDT min | Core RMSD to WT, Å | Structural pass |
-| -----: | ---------: | ---: | --------------------: | -----------------: | --------------- |
-|      1 |       high | 0.91 |                  high |              < 1.0 | pass            |
-|      2 |       high | 0.91 |                  high |              < 1.0 | pass            |
-|      3 |       high | 0.91 |                  high |              < 1.0 | pass            |
-|      4 |       high | 0.91 |                  high |              < 1.0 | pass            |
-|      5 |       high | 0.91 |                  high |              < 1.0 | pass            |
-|      6 |       high | 0.91 |                  high |              < 1.0 | pass            |
-
-The exact numeric values are available in:
+Detailed metrics are available in:
 
 ```text
-outputs/final6_GeneMeow_summary.csv
-outputs/stage4_colabfold_metrics_from_uploaded_archive.csv
+outputs/final6_colabfold_brightness_metrics.csv
+outputs/colabfold_validation_metrics.csv
 ```
+
+Note on terminal mutations:
+
+Some variants include mutations near the flexible C-terminus, especially `H231Y` and `Y237N`. These terminal positions can have lower local pLDDT, but the GFP core, chromophore region, and core mutation sites remain high-confidence. Therefore, terminal pLDDT was tracked separately and was not treated as evidence of β-barrel disruption.
 
 ---
 
 ## Figures
 
-The following summary figures were generated for the design report:
+The following figures are included in the repository and the design report:
 
 ```text
-figures/final6_final_computational_score.png
+figures/final6_brightness_delta.png
+figures/final6_stability_proxy.png
 figures/final6_mean_plddt.png
-figures/final6_chromophore_plddt_min.png
-figures/final6_core_rmsd_to_wt.png
-figures/top24_charge_vs_final_score_highlight_final6.png
+figures/final6_chromophore_plddt.png
+figures/final6_core_rmsd.png
+figures/final6_brightness_vs_stability.png
 ```
 
-Raw ColabFold plots for the final six are stored in:
+Raw ColabFold plots are stored in:
 
 ```text
 figures/colabfold_raw_plots_final6/
 ```
 
-These include per-sequence pLDDT, PAE and MSA coverage plots when available.
+These include pLDDT, predicted aligned error, and MSA coverage plots for WT sfGFP and the final six designs.
 
 ---
 
-## How to reproduce the workflow
+## How to reproduce
 
 ### 1. Install dependencies
 
@@ -544,48 +438,47 @@ pip install -r requirements.txt
 
 ---
 
-### 2. Run sequence design pipeline
-
-Place the official files in `/content/` or adjust paths in the script:
-
-```text
-/content/AAseqs of 5 GFP proteins_20260511.txt
-/content/GFP_data.xlsx
-/content/Exclusion_List.csv
-/content/submission_template.csv
-```
+### 2. Run the design and validation pipeline
 
 Run:
 
 ```bash
-python scripts/gfp_2026_design_pipeline.py
+python run_pipeline.py
 ```
 
-Main outputs:
+or use the modular scripts in `src/` and `scripts/`.
+
+Main components:
 
 ```text
-all_generated_candidates_ranked_v2.csv
-top24_for_colabfold_v2.csv
-mutation_evidence_v2.csv
-stage3_v2_metadata.json
-colabfold_top24_fasta_v2.zip
+src/brightness_model.py          baseline avGFP DMS brightness model
+src/sfgfp_brightness_model.py    sfGFP-aware delta brightness scoring
+src/design.py                    final sequence definitions and design logic
+src/verify.py                    format and exclusion checks
+src/reliability_screen.py        reliability and risk scoring
 ```
 
 ---
 
 ### 3. Run ColabFold
 
-Use the ColabFold AlphaFold2_batch notebook or the provided script:
+Use:
 
 ```text
 scripts/alphafold2_batch.py
 ```
 
+or the ColabFold AlphaFold2_batch notebook.
+
+The input FASTA file is:
+
+```text
+structural_validation/colabfold_input_WT_plus_6designs.fasta
+```
+
 Recommended settings:
 
 ```text
-input_dir = folder with 25 FASTA files
-result_dir = Google Drive output folder
 msa_mode = MMseqs2 (UniRef+Environmental)
 num_models = 5
 num_recycles = 3
@@ -594,92 +487,46 @@ num_relax = 0
 zip_results = True
 ```
 
-The input folder should contain:
-
-```text
-sfGFP_WT.fasta
-Query_01_CANDV2_01064.fasta
-...
-Query_24_CANDV2_26657.fasta
-```
-
 ---
 
 ### 4. Process ColabFold results
 
-Upload the ColabFold results archive to Colab and run:
+Use:
 
 ```bash
-python scripts/process_colabfold_archive_memory_safe.py
+python structural_validation/process_colabfold_results_final6_memory_safe.py
 ```
 
-This script extracts metrics from the uploaded ColabFold archive and creates:
+This extracts pLDDT, pTM, chromophore pLDDT, core RMSD to WT sfGFP, mutation-site pLDDT, and writes summary tables.
 
-```text
-submission_GeneMeow.csv
-final6_GeneMeow_summary.csv
-stage4_colabfold_metrics_from_uploaded_archive.csv
-GeneMeow_figures_for_PDF.zip
-GeneMeow_minimal_submission_package.zip
-```
-
-The memory-safe script intentionally does not archive the full extracted ColabFold results folder, because that folder can be large and may exceed Colab memory or disk limits.
+The memory-safe script does not archive the full extracted ColabFold folder, because raw ColabFold outputs can be large.
 
 ---
 
 ## Final competition files
 
-The three final files required for submission are:
+Submit these three items to the competition system:
 
 ```text
 outputs/submission_GeneMeow.csv
-docs/design_concept_GeneMeow_updated.pdf
+docs/design_concept_GeneMeow.pdf
 public GitHub repository URL
 ```
 
-The CSV file contains the six submitted sequences.
-
-The PDF explains:
-
-* workflow;
-* scoring logic;
-* brightness model;
-* stability proxy;
-* top24 selection;
-* ColabFold validation;
-* final sequence selection;
-* limitations.
-
-The GitHub repository provides the code and output tables required for reproducibility.
+The CSV is the official sequence file. The PDF explains the computational design concept and includes figures. The GitHub repository provides code, tables, structural validation outputs, and report files for reproducibility.
 
 ---
 
 ## Limitations
 
-This workflow provides computational prioritization, not experimental proof.
+This is a computational prioritization workflow, not an experimental validation.
 
-Important limitations:
+Main limitations:
 
-1. The avGFP DMS brightness model is not a direct absolute predictor of sfGFP brightness.
-2. The stability score is a proxy, not a measured melting temperature or direct `Ffinal` prediction.
-3. ColabFold checks structural plausibility but does not predict chromophore maturation, extinction coefficient, quantum yield, CFPS expression level, or post-heat fluorescence.
-4. The true performance of each submitted sequence can only be determined by the official experimental assay.
-
-Therefore, the final six sequences are best interpreted as rationally prioritized candidates rather than experimentally validated improved GFPs.
-
----
-
-## Citation notes
-
-This project uses ideas and tools from:
-
-* GFP deep mutational scanning / brightness landscape data provided in the official competition materials;
-* sfGFP as a robust folding scaffold;
-* ColabFold / AlphaFold2 for structural sanity checking;
-* MMseqs2-based MSA generation through ColabFold;
-* surface charge and folding-prior engineering as stability-oriented heuristics.
-
-The exact citation list generated by ColabFold is available in the ColabFold output `cite.bibtex` files.
+1. The brightness model is derived from avGFP DMS data and used as a mutation-level prior, not as an exact predictor of the official CFPS brightness assay.
+2. The stability proxy is not a measured melting temperature and not a direct predictor of `Ffinal` after 72°C treatment.
+3. ColabFold validates fold plausibility but does not predict chromophore maturation, extinction coefficient, quantum yield, cell-free expression yield, or thermal fluorescence retention.
+4. The true ranking can only be determined by the official synthesis, expression, heat-treatment, and fluorescence measurements.
 
 ---
 
@@ -688,5 +535,6 @@ The exact citation list generated by ColabFold is available in the ColabFold out
 ```text
 Team name: GeneMeow
 Task: Computational design of GFP variants with high fluorescence brightness and thermal stability retention
-Final submission file: submission_GeneMeow.csv
+Final submission file: outputs/submission_GeneMeow.csv
+Design report: docs/design_concept_GeneMeow.pdf
 ```

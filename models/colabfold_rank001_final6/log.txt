@@ -1,0 +1,6 @@
+2026-06-26 08:56:55,106 Running on GPU
+2026-06-26 08:56:56,078 Found 5 citations for tools or databases
+2026-06-26 08:56:56,080 Query 1/7: Seq1_conservative_surface_D19E_R73L_H231Y (length 238)
+2026-06-26 08:56:56,386 Sleeping for 10s. Reason: PENDING
+2026-06-26 08:57:06,656 Sleeping for 7s. Reason: RUNNING
+2026-06-26 08:57:13,967 Sleeping for 8s. Reason: RUNNING

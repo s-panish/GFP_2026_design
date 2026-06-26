@@ -1,0 +1,7 @@
+Seq_ID,Team_Name,length,starts_M,allowed,chromophore_65_67,chromophore_preserved,n_mut,mutations,net_charge,charge_delta_more_neg_vs_sf,in_exclusion,in_beforetop,duplicate,same_as_our_v3,delta,measured,estimated,ref_mismatch,low_support,brightness_pass,verdict,stability_proxy,risk_penalty,pre_like_score
+1,GeneMeow,238,True,[],TYG,True,3,D19E:R73L:H231Y,-6.1,1.0999999999999996,False,False,False,False,0.17,3,0,0,0,True,>= sfGFP brightness prior,0.3161408831187079,0.24,-0.0285436467525168
+2,GeneMeow,238,True,[],TYG,True,5,D19E:R73L:K166E:N212D:H231Y,-9.1,4.1,False,False,False,False,0.2829,5,0,0,0,True,>= sfGFP brightness prior,1.221931234780259,0.4,0.2302224939121036
+3,GeneMeow,238,True,[],TYG,True,6,D19E:R73L:K166E:N198D:N212D:H231Y,-10.1,5.1,False,False,False,False,0.3459,6,0,0,0,True,>= sfGFP brightness prior,1.50719697819972,0.48,0.295828791279888
+4,GeneMeow,238,True,[],TYG,True,8,D19E:R73L:K101E:K156E:K166E:N198D:N212D:H231Y,-14.1,9.1,False,False,False,False,0.3787,8,0,0,0,True,>= sfGFP brightness prior,1.303584474550438,1.14,-0.4292162101798248
+5,GeneMeow,238,True,[],TYG,True,4,D19E:R73L:H231Y:Y237N,-6.1,1.0999999999999996,False,False,False,False,0.2786,4,0,0,0,True,>= sfGFP brightness prior,0.3161408831187079,0.42,-0.1542436467525168
+6,GeneMeow,238,True,[],TYG,True,5,K101E:K156E:K166E:N198D:N212D,-13.0,8.0,False,False,False,False,0.2087,5,0,0,0,True,>= sfGFP brightness prior,1.5608848835001696,0.4,0.3287039534000678
