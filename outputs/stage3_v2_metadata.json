@@ -1,0 +1,112 @@
+{
+  "timestamp": "2026-06-25T15:07:49",
+  "parent_scaffold": "sfGFP",
+  "sfGFP_length": 238,
+  "sfGFP_chromophore_65_67": "TYG",
+  "sfGFP_approx_net_charge": -5.0,
+  "reason_for_stage3_v2": "Stage 3 v1 full-sequence avGFP-transfer brightness prediction saturated and assigned the same brightness value to all sfGFP candidates. Stage 3 v2 therefore uses mutation-level DMS evidence, H148S literature prior, charge/stability proxy, and explicit diversity constraints.",
+  "mutation_library_v2": [
+    {
+      "mutation": "L220V",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "L194M",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "D102E",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "L220Q",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "Q183L",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "A226T",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "A226D",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "V11L",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "T49S",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "Q183R",
+      "category": "dms_brightness_safe"
+    },
+    {
+      "mutation": "H148S",
+      "category": "literature_brightness_prior"
+    },
+    {
+      "mutation": "N198D",
+      "category": "negative_supercharging"
+    },
+    {
+      "mutation": "K101E",
+      "category": "negative_supercharging"
+    },
+    {
+      "mutation": "K156E",
+      "category": "negative_supercharging"
+    },
+    {
+      "mutation": "K166E",
+      "category": "negative_supercharging"
+    },
+    {
+      "mutation": "K214E",
+      "category": "negative_supercharging"
+    },
+    {
+      "mutation": "N212D",
+      "category": "negative_supercharging"
+    },
+    {
+      "mutation": "N164Y",
+      "category": "folding_prior"
+    },
+    {
+      "mutation": "N149K",
+      "category": "folding_prior"
+    },
+    {
+      "mutation": "S208L",
+      "category": "folding_prior"
+    },
+    {
+      "mutation": "F46L",
+      "category": "optional_risk"
+    }
+  ],
+  "generated_candidates_after_filters": 134337,
+  "selected_for_colabfold": 24,
+  "hard_filters": [
+    "length 220-250 aa",
+    "starts with M",
+    "standard amino acids only",
+    "chromophore 65-67 preserved",
+    "not exact match in Exclusion_List.csv",
+    "not exact match in beforetopseqs",
+    "Q69L excluded due to negative DMS-equivalent Q68L brightness signal"
+  ],
+  "design_families": [
+    "conservative_H148S_mild_charge",
+    "balanced_H148S_medium_charge",
+    "balanced_H148S_stronger_charge",
+    "thermal_supercharged_H148S",
+    "backup_without_H148S"
+  ]
+}

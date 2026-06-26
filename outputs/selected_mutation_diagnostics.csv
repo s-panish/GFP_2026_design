@@ -1,0 +1,17 @@
+mutation,observed_single_brightness_mean,observed_single_brightness_min,observed_single_brightness_max,n_single_observations,ridge_coefficient
+Q68L,3.215612114,3.215612114,3.215612114,1,-0.44899735861688916
+H147S,,,,0,
+F45L,3.68584989,3.68584989,3.68584989,1,-0.18667098150201972
+N148K,,,,0,-0.014018121197365186
+N163Y,3.71817107,3.71817107,3.71817107,1,0.0454435846399316
+S207L,,,,0,
+D19E,,,,0,
+L44M,,,,0,
+R73L,,,,0,
+N198D,,,,0,
+H231Y,,,,0,
+K101E,,,,0,
+K156E,,,,0,
+K166E,,,,0,
+K214E,,,,0,
+N212D,,,,0,
