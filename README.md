@@ -99,6 +99,8 @@ data/reference_sequences.fasta
 
 ColabFold is treated as an **external Google Colab tool**, not as a locally maintained script in this repository. This is intentional: ColabFold notebooks are frequently updated, depend on the current Google Colab runtime, and may break if an exported `.py` copy is committed and run later as a standalone script.
 
+Do **not** run `scripts/alphafold2_batch.py` from an old clone of this repository. ColabFold must be launched from the official AlphaFold2_batch notebook linked below. The repository stores ColabFold inputs and saved outputs, but does not maintain a standalone ColabFold runner.
+
 Use the official ColabFold resources instead:
 
 ```text
@@ -472,17 +474,66 @@ These include pLDDT, predicted aligned error, and MSA coverage plots for WT sfGF
 
 ## How to reproduce
 
-The original work was performed in Google Colab. The commands below reproduce the non-GPU design checks in a Colab runtime and use ColabFold in a Colab GPU runtime.
+The original work was performed in **Google Colab**. The non-GPU design and validation pipeline can be reproduced in a normal Colab Python runtime. The ColabFold structural validation should be reproduced separately in a Colab GPU runtime using the official ColabFold AlphaFold2_batch notebook.
 
-### 1. Install dependencies
+### 0. Clone the repository in Google Colab
 
-In Google Colab:
+Open a new Google Colab notebook and run:
+
+```python
+!git clone https://github.com/s-panish/GFP_2026_design.git
+%cd GFP_2026_design
+```
+
+Check that the expected repository folders and input files are present:
+
+```python
+!pwd
+!ls
+!ls data
+!ls input
+!ls structural_validation
+```
+
+The `data/` folder should contain:
+
+```text
+data/AAseqs of 5 GFP proteins_20260511.txt
+data/GFP_data.xlsx
+data/Exclusion_List.csv
+data/submission_template.csv
+data/reference_sequences.fasta
+```
+
+The `input/` folder should contain the seven FASTA files used for ColabFold:
+
+```text
+input/WT_sfGFP.fasta
+input/Seq1_conservative_surface_D19E_R73L_H231Y.fasta
+input/Seq2_balanced_core_D19E_R73L_H231Y_K166E_N212D.fasta
+input/Seq3_MAIN_balanced_D19E_R73L_H231Y_N198D_N212D_K166E.fasta
+input/Seq4_BEST_thermal_D19E_R73L_H231Y_N198D_N212D_K166E_K156E_K101E.fasta
+input/Seq5_BEST_brightness_D19E_R73L_H231Y_Y237N.fasta
+input/Seq6_INSURANCE_supercharge_K166E_N212D_K101E_K156E_N198D.fasta
+```
+
+A multi-FASTA version for direct upload to the official ColabFold notebook is also provided:
+
+```text
+structural_validation/colabfold_input_WT_plus_6designs.fasta
+```
+
+---
+
+### 1. Install Python dependencies
+
+In Google Colab, run:
 
 ```python
 !pip install -q pandas numpy matplotlib scikit-learn openpyxl biopython reportlab python-docx
 ```
 
-Optional local sanity check:
+Optional local sanity check outside Colab:
 
 ```bash
 python -m venv .venv
@@ -492,15 +543,24 @@ pip install -r requirements.txt
 
 ---
 
-### 2. Run the design and validation pipeline
+### 2. Run the non-GPU design and validation pipeline
 
-Run:
+In the repository root, run:
 
-```bash
-python run_pipeline.py
+```python
+!python run_pipeline.py
 ```
 
-or use the modular scripts in `src/` and `scripts/`.
+The expected main outputs are:
+
+```text
+outputs/submission.csv
+outputs/submission_GeneMeow.csv
+outputs/design_report.csv
+outputs/submission_validation_summary.csv
+```
+
+The pipeline checks sequence format, exclusion-list matches, previous-top-sequence matches, sfGFP-aware brightness delta, stability proxy, and final six-sequence portfolio consistency.
 
 Main components:
 
@@ -512,19 +572,29 @@ src/verify.py                    format and exclusion checks
 src/reliability_screen.py        reliability and risk scoring
 ```
 
+A quick syntax check can also be run with:
+
+```python
+!python -m compileall run_pipeline.py src scripts structural_validation
+```
+
 ---
 
-### 3. Run ColabFold
+### 3. Run ColabFold structural validation
 
-The ColabFold part was run in Google Colab GPU runtime using the official ColabFold AlphaFold2_batch notebook, not a repository-maintained exported script.
+ColabFold is **not** run from a repository-maintained Python script. Do not run `scripts/alphafold2_batch.py` from an old clone. That file was an exported notebook copy and is not a reliable reproducible interface.
 
-Official notebook:
+Use the official ColabFold AlphaFold2_batch notebook:
 
 ```text
 https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/batch/AlphaFold2_batch.ipynb
 ```
 
-Option A: copy the individual FASTA files to Google Drive and use them as the batch input directory:
+There are two supported ways to provide input sequences.
+
+#### Option A — batch input directory in Google Drive
+
+In the repository notebook, copy the individual FASTA files to Google Drive:
 
 ```python
 from google.colab import drive
@@ -532,27 +602,31 @@ drive.mount('/content/drive')
 
 !mkdir -p /content/drive/MyDrive/colab_fold/input_fasta
 !cp input/*.fasta /content/drive/MyDrive/colab_fold/input_fasta/
+!ls /content/drive/MyDrive/colab_fold/input_fasta
 ```
 
-Input directory used in the original run:
+Then open the official AlphaFold2_batch notebook and set:
 
 ```text
-/content/drive/MyDrive/colab_fold/input_fasta
+input_dir = /content/drive/MyDrive/colab_fold/input_fasta
+result_dir = /content/drive/MyDrive/colab_fold/result
 ```
 
-Output directory used in the original run:
+#### Option B — direct multi-FASTA upload
 
-```text
-/content/drive/MyDrive/colab_fold/result
-```
-
-Option B: upload the prepared multi-FASTA directly to the official ColabFold AlphaFold2_batch notebook:
+Upload this file directly to the official AlphaFold2_batch notebook:
 
 ```text
 structural_validation/colabfold_input_WT_plus_6designs.fasta
 ```
 
-Recommended settings:
+Use this output directory in the official notebook:
+
+```text
+/content/drive/MyDrive/colab_fold/result
+```
+
+Recommended ColabFold settings:
 
 ```text
 msa_mode = MMseqs2 (UniRef+Environmental)
@@ -565,19 +639,94 @@ rank_by = pLDDT
 zip_results = True
 ```
 
+After the official ColabFold notebook finishes, the result directory should contain predicted PDB files, JSON score files, and plots for WT sfGFP plus Seq1–Seq6.
+
 ---
 
-### 4. Process ColabFold results
+### 4. Copy ColabFold outputs back into the repository
 
-Use:
+The downstream parser expects the selected rank001 ColabFold outputs in:
 
-```bash
-python structural_validation/process_colabfold_results_final6_memory_safe.py
+```text
+models/colabfold_rank001_final6/
+```
+
+If the official notebook wrote results to Google Drive, copy the relevant files back to the repository directory in Colab:
+
+```python
+!mkdir -p models/colabfold_rank001_final6
+!find /content/drive/MyDrive/colab_fold/result -type f \( -name "*.pdb" -o -name "*.json" \) | head
+```
+
+Then copy the rank001 PDB and JSON files into the expected folder. If the official notebook already generated a zip archive, unzip it first and copy the extracted rank001 files:
+
+```python
+!mkdir -p /content/colabfold_extracted
+!find /content/drive/MyDrive/colab_fold/result -name "*.zip" -print
+```
+
+If a result zip is present, unzip it:
+
+```python
+!unzip -o /content/drive/MyDrive/colab_fold/result/*.zip -d /content/colabfold_extracted
+```
+
+Copy rank001 files:
+
+```python
+!find /content/colabfold_extracted -type f \( -name "*rank_001*.pdb" -o -name "*rank_001*.json" -o -name "*scores_rank_001*.json" \) -exec cp {} models/colabfold_rank001_final6/ \;
+!ls models/colabfold_rank001_final6
+```
+
+If the official notebook did not create a zip and wrote files directly into the result directory, use:
+
+```python
+!find /content/drive/MyDrive/colab_fold/result -type f \( -name "*rank_001*.pdb" -o -name "*rank_001*.json" -o -name "*scores_rank_001*.json" \) -exec cp {} models/colabfold_rank001_final6/ \;
+!ls models/colabfold_rank001_final6
+```
+
+The repository already contains the ColabFold outputs used for the final report, so this copying step is needed only when reproducing the structural validation from scratch.
+
+---
+
+### 5. Process ColabFold results
+
+Run the memory-safe parser:
+
+```python
+!python structural_validation/process_colabfold_results_final6_memory_safe.py
 ```
 
 This extracts pLDDT, pTM, chromophore pLDDT, core RMSD to WT sfGFP, mutation-site pLDDT, and writes summary tables.
 
+Expected output tables:
+
+```text
+outputs/colabfold_validation_metrics.csv
+outputs/final6_colabfold_brightness_metrics.csv
+```
+
 The memory-safe script does not archive the full extracted ColabFold folder, because raw ColabFold outputs can be large.
+
+---
+
+### 6. Minimal reproducibility checklist
+
+A successful reproduction should satisfy all checks below:
+
+```text
+python run_pipeline.py finishes without errors
+outputs/submission_GeneMeow.csv exists
+outputs/design_report.csv exists
+all final sequences are 238 aa and start with M
+all final sequences preserve TYG at positions 65–67
+ColabFold was launched via the official AlphaFold2_batch notebook
+ColabFold input FASTA files came from input/ or structural_validation/colabfold_input_WT_plus_6designs.fasta
+rank001 PDB/JSON files are available in models/colabfold_rank001_final6/
+structural_validation/process_colabfold_results_final6_memory_safe.py finishes without errors
+outputs/colabfold_validation_metrics.csv exists
+outputs/final6_colabfold_brightness_metrics.csv exists
+```
 
 ---
 
