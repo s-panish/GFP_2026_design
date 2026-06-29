@@ -59,27 +59,110 @@ Our workflow does **not** claim to directly predict the final experimental score
 
 ---
 
+## Execution environment
+
+All computational work for this repository was performed in **Google Colab**. The standard design/validation pipeline was run in a Colab Python runtime, and the structural validation was run in a Colab GPU runtime using ColabFold AlphaFold2_batch.
+
+The repository keeps the code in plain Python files so the non-GPU parts can also be checked locally, but the intended and documented execution environment is Google Colab.
+
+---
+
 ## Required official input files
 
-The full workflow uses the official competition materials:
+The full workflow uses the official competition materials. In this repository they are stored in:
 
 ```text
-AAseqs of 5 GFP proteins_20260511.txt
-GFP_data.xlsx
-Exclusion_List.csv
-submission_template.csv
+data/AAseqs of 5 GFP proteins_20260511.txt
+data/GFP_data.xlsx
+data/Exclusion_List.csv
+data/submission_template.csv
 ```
 
-These official files should be downloaded from the competition system. The repository includes a lightweight `data/reference_sequences.fasta` for convenience, but large official datasets may need to be placed manually in `data/` or `/content/` before a full rerun.
-
-Expected Colab layout for full reproduction:
+For the original Google Colab run, the same files were available in the working directory as:
 
 ```text
-/content/
-├── AAseqs of 5 GFP proteins_20260511.txt
-├── GFP_data.xlsx
-├── Exclusion_List.csv
-└── submission_template.csv
+/content/AAseqs of 5 GFP proteins_20260511.txt
+/content/GFP_data.xlsx
+/content/Exclusion_List.csv
+/content/submission_template.csv
+```
+
+The repository also includes a lightweight reference file:
+
+```text
+data/reference_sequences.fasta
+```
+
+---
+
+## ColabFold structural validation
+
+ColabFold is treated as an **external Google Colab tool**, not as a locally maintained script in this repository. This is intentional: ColabFold notebooks are frequently updated, depend on the current Google Colab runtime, and may break if an exported `.py` copy is committed and run later as a standalone script.
+
+Use the official ColabFold resources instead:
+
+```text
+Official ColabFold GitHub:
+https://github.com/sokrypton/ColabFold
+
+Official AlphaFold2_batch notebook:
+https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/batch/AlphaFold2_batch.ipynb
+
+Notebook source on GitHub:
+https://github.com/sokrypton/ColabFold/blob/main/batch/AlphaFold2_batch.ipynb
+```
+
+The prepared ColabFold inputs are already included in this repository. There are two equivalent formats.
+
+One FASTA file per sequence:
+
+```text
+input/WT_sfGFP.fasta
+input/Seq1_conservative_surface_D19E_R73L_H231Y.fasta
+input/Seq2_balanced_core_D19E_R73L_H231Y_K166E_N212D.fasta
+input/Seq3_MAIN_balanced_D19E_R73L_H231Y_N198D_N212D_K166E.fasta
+input/Seq4_BEST_thermal_D19E_R73L_H231Y_N198D_N212D_K166E_K156E_K101E.fasta
+input/Seq5_BEST_brightness_D19E_R73L_H231Y_Y237N.fasta
+input/Seq6_INSURANCE_supercharge_K166E_N212D_K101E_K156E_N198D.fasta
+```
+
+The Google Drive layout used in the original Colab run was:
+
+```text
+/content/drive/MyDrive/colab_fold/input_fasta/WT_sfGFP.fasta
+/content/drive/MyDrive/colab_fold/input_fasta/Seq1_conservative_surface_D19E_R73L_H231Y.fasta
+/content/drive/MyDrive/colab_fold/input_fasta/Seq2_balanced_core_D19E_R73L_H231Y_K166E_N212D.fasta
+/content/drive/MyDrive/colab_fold/input_fasta/Seq3_MAIN_balanced_D19E_R73L_H231Y_N198D_N212D_K166E.fasta
+/content/drive/MyDrive/colab_fold/input_fasta/Seq4_BEST_thermal_D19E_R73L_H231Y_N198D_N212D_K166E_K156E_K101E.fasta
+/content/drive/MyDrive/colab_fold/input_fasta/Seq5_BEST_brightness_D19E_R73L_H231Y_Y237N.fasta
+/content/drive/MyDrive/colab_fold/input_fasta/Seq6_INSURANCE_supercharge_K166E_N212D_K101E_K156E_N198D.fasta
+```
+
+The corresponding Google Drive result directory was:
+
+```text
+/content/drive/MyDrive/colab_fold/result/
+```
+
+A single multi-FASTA version is also stored for upload to the official batch notebook:
+
+```text
+structural_validation/colabfold_input_WT_plus_6designs.fasta
+```
+
+All seven ColabFold input sequences are 238 amino acids long and include WT sfGFP plus Seq1–Seq6. The saved ColabFold outputs used for downstream analysis are stored in:
+
+```text
+models/colabfold_rank001_final6/
+figures/colabfold_raw_plots_final6/
+outputs/colabfold_validation_metrics.csv
+outputs/final6_colabfold_brightness_metrics.csv
+```
+
+Detailed step-by-step ColabFold instructions are provided in:
+
+```text
+structural_validation/colabfold_run_instructions.md
 ```
 
 ---
@@ -288,12 +371,26 @@ Both models agree all six designs score ≥ sfGFP and both verified the −1 num
 
 ## Stage 6 — ColabFold structural validation
 
-The final six designs plus WT sfGFP were evaluated with ColabFold AlphaFold2_batch.
+The final six designs plus WT sfGFP were evaluated with ColabFold AlphaFold2_batch in Google Colab GPU runtime.
+
+ColabFold input paths:
+
+```text
+input/WT_sfGFP.fasta
+input/Seq1_conservative_surface_D19E_R73L_H231Y.fasta
+input/Seq2_balanced_core_D19E_R73L_H231Y_K166E_N212D.fasta
+input/Seq3_MAIN_balanced_D19E_R73L_H231Y_N198D_N212D_K166E.fasta
+input/Seq4_BEST_thermal_D19E_R73L_H231Y_N198D_N212D_K166E_K156E_K101E.fasta
+input/Seq5_BEST_brightness_D19E_R73L_H231Y_Y237N.fasta
+input/Seq6_INSURANCE_supercharge_K166E_N212D_K101E_K156E_N198D.fasta
+structural_validation/colabfold_input_WT_plus_6designs.fasta
+```
 
 ColabFold settings:
 
 ```text
-input = WT sfGFP + 6 designed FASTA sequences
+input_dir = /content/drive/MyDrive/colab_fold/input_fasta
+result_dir = /content/drive/MyDrive/colab_fold/result
 MSA mode = MMseqs2 UniRef + Environmental
 number of models = 5
 number of recycles = 3
@@ -375,15 +472,17 @@ These include pLDDT, predicted aligned error, and MSA coverage plots for WT sfGF
 
 ## How to reproduce
 
+The original work was performed in Google Colab. The commands below reproduce the non-GPU design checks in a Colab runtime and use ColabFold in a Colab GPU runtime.
+
 ### 1. Install dependencies
 
 In Google Colab:
 
 ```python
-!pip install -q pandas numpy matplotlib scikit-learn openpyxl
+!pip install -q pandas numpy matplotlib scikit-learn openpyxl biopython reportlab python-docx
 ```
 
-For local execution:
+Optional local sanity check:
 
 ```bash
 python -m venv .venv
@@ -417,15 +516,37 @@ src/reliability_screen.py        reliability and risk scoring
 
 ### 3. Run ColabFold
 
-Use:
+The ColabFold part was run in Google Colab GPU runtime using the official ColabFold AlphaFold2_batch notebook, not a repository-maintained exported script.
+
+Official notebook:
 
 ```text
-scripts/alphafold2_batch.py
+https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/batch/AlphaFold2_batch.ipynb
 ```
 
-or the ColabFold AlphaFold2_batch notebook.
+Option A: copy the individual FASTA files to Google Drive and use them as the batch input directory:
 
-The input FASTA file is:
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+
+!mkdir -p /content/drive/MyDrive/colab_fold/input_fasta
+!cp input/*.fasta /content/drive/MyDrive/colab_fold/input_fasta/
+```
+
+Input directory used in the original run:
+
+```text
+/content/drive/MyDrive/colab_fold/input_fasta
+```
+
+Output directory used in the original run:
+
+```text
+/content/drive/MyDrive/colab_fold/result
+```
+
+Option B: upload the prepared multi-FASTA directly to the official ColabFold AlphaFold2_batch notebook:
 
 ```text
 structural_validation/colabfold_input_WT_plus_6designs.fasta
@@ -435,10 +556,12 @@ Recommended settings:
 
 ```text
 msa_mode = MMseqs2 (UniRef+Environmental)
+model_type = AlphaFold2-ptm
 num_models = 5
 num_recycles = 3
 use_templates = False
 num_relax = 0
+rank_by = pLDDT
 zip_results = True
 ```
 
