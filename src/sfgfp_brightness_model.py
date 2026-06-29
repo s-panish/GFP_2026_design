@@ -33,7 +33,7 @@ WHAT IT GETS RIGHT
    mutates *from* matches both the parent (sfGFP) and the avGFP DMS reference at
    that position. Mutations at positions where sfGFP differs from avGFP (or whose
    'from' residue disagrees) are flagged - their avGFP coefficient is for the
-   wrong starting residue. (Several other teams silently used such coefficients.)
+   wrong starting residue. (Using such a coefficient here would be a silent error.)
 
 4. Coverage-aware, never silently zero. Only ~40% of single substitutions were
    measured in the DMS. Unseen mutations are not set to 0; they receive a

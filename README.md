@@ -174,10 +174,10 @@ Observed model performance:
 
 ```text
 avGFP rows used: 51715
-mutation features: 1703
-raw Ridge test R²: 0.6935
-Ridge + isotonic test R²: 0.9214
-Ridge + isotonic test MAE: 0.1700
+mutation features: 1810
+raw Ridge test R²: 0.6878
+Ridge + isotonic test R²: 0.933
+Ridge + isotonic test MAE: 0.160
 ```
 
 Important methodological choice:
@@ -260,12 +260,12 @@ The final six sequences were selected to cover complementary design hypotheses.
 
 | Seq_ID | Role | Mutations | Brightness delta | Stability proxy |
 |---:|---|---|---:|---:|
-| 1 | conservative surface-brightness candidate | D19E:R73L:H231Y | 0.1700 | 0.316 |
-| 2 | balanced charge/brightness candidate | D19E:R73L:K166E:N212D:H231Y | 0.2829 | 1.222 |
-| 3 | main balanced candidate | D19E:R73L:K166E:N198D:N212D:H231Y | 0.3459 | 1.507 |
-| 4 | high-charge thermal candidate | D19E:R73L:K101E:K156E:K166E:N198D:N212D:H231Y | 0.3787 | 1.304 |
-| 5 | brightness-focused backup | D19E:R73L:H231Y:Y237N | 0.2786 | 0.316 |
-| 6 | supercharged thermal insurance candidate | K101E:K156E:K166E:N198D:N212D | 0.2087 | 1.561 |
+| 1 | conservative surface-brightness candidate | D19E:R73L:H231Y | 0.382 | 0.316 |
+| 2 | balanced charge/brightness candidate | D19E:R73L:K166E:N212D:H231Y | 0.433 | 1.222 |
+| 3 | main balanced candidate | D19E:R73L:K166E:N198D:N212D:H231Y | 0.500 | 1.507 |
+| 4 | high-charge thermal candidate | D19E:R73L:K101E:K156E:K166E:N198D:N212D:H231Y | 0.544 | 1.304 |
+| 5 | brightness-focused backup | D19E:R73L:H231Y:Y237N | 0.556 | 0.316 |
+| 6 | supercharged thermal insurance candidate | K101E:K156E:K166E:N198D:N212D | 0.162 | 1.561 |
 
 Rationale:
 
@@ -274,6 +274,15 @@ Rationale:
 - Seq 4 is a higher-risk, higher-charge thermal-retention candidate.
 - Seq 5 is a brightness-oriented backup.
 - Seq 6 is a strong thermal/supercharge insurance design without the terminal H231Y mutation.
+
+### Note on the two brightness models
+
+Brightness has two independent estimates, kept as a convergent cross-check (this is intentional, not an inconsistency):
+
+- **Canonical (Claude branch)** — `outputs/design_report.csv`: model with 1810 mutation features, held-out R² = 0.933; deltas 0.382 / 0.433 / 0.500 / 0.544 / 0.556 / 0.162. These are the values used in this README and in the design document.
+- **Cross-check (ChatGPT branch)** — `outputs/final6_colabfold_brightness_metrics.csv`, `outputs/colabfold_validation_metrics.csv`, and `outputs/submission_validation_summary.csv`: an independent brightness model (1703 features, R² = 0.9214; deltas 0.170 / 0.283 / 0.346 / 0.379 / 0.279 / 0.209) reported next to the ColabFold structural metrics.
+
+Both models agree all six designs score ≥ sfGFP and both verified the −1 numbering offset; they differ only in magnitude and fine ranking. The Claude model is canonical.
 
 ---
 
@@ -483,4 +492,5 @@ Team name: GeneMeow
 Task: Computational design of GFP variants with high fluorescence brightness and thermal stability retention
 Final submission file: outputs/submission_GeneMeow.csv
 Design report: docs/design_concept_GeneMeow.pdf
+Agent workflow log: docs/agent_workflow_combined_GeneMeow.md
 ```
